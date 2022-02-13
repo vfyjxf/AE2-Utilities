@@ -1,0 +1,14 @@
+{
+  "package": "com.github.vfyjxf.ae2utilities.mixins",
+  "refmap": "mixins.ae2utilities.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinDualityEnhancedInterface",
+    "MixinContainerInterfaceTerminal"
+  ],
+  "client": [
+    "client.MixinGuiInterfaceTerminal"
+  ]
+}

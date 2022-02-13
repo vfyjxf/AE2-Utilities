@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "ae2utilities:blocks/enhanced_interface_tier_1"
+  }
+}

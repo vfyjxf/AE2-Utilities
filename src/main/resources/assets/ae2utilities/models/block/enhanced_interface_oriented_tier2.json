@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "ae2utilities:blocks/enhanced_interface_tier_2",
+    "down": "ae2utilities:blocks/enhanced_interface_alternate_tier2",
+    "up": "ae2utilities:blocks/enhanced_interface_tier_2",
+    "north": "ae2utilities:blocks/enhanced_interface_alternate_arrow_tier2",
+    "south": "ae2utilities:blocks/enhanced_interface_alternate_arrow_tier2",
+    "east": "ae2utilities:blocks/enhanced_interface_alternate_arrow_tier2",
+    "west": "ae2utilities:blocks/enhanced_interface_alternate_arrow_tier2"
+  }
+}
