@@ -1,13 +1,17 @@
 package com.github.vfyjxf.ae2utilities.network;
 
+import appeng.api.parts.IPart;
+import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.ContainerPriority;
+import appeng.helpers.IInterfaceHost;
 import com.github.vfyjxf.ae2utilities.AE2Utilities;
 import com.github.vfyjxf.ae2utilities.client.gui.GuiAe2uPriority;
 import com.github.vfyjxf.ae2utilities.client.gui.GuiEnhancedInterface;
 import com.github.vfyjxf.ae2utilities.container.ContainerEnhancedInterface;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceBase;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -31,29 +35,39 @@ public class Ae2uGuiHandler implements IGuiHandler {
         final AEPartLocation side = AEPartLocation.fromOrdinal(ordinal & 7);
         if (side != AEPartLocation.INTERNAL) {
             TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
+            IPart part = getPart(tile, side);
             if (tile != null) {
                 switch (guiId) {
                     case GUI_ENHANCED_INTERFACE_TIER_1_ID:
                     case GUI_ENHANCED_INTERFACE_TIER_2_ID:
-                        if (tile instanceof TileEnhancedInterfaceBase) {
-                            TileEnhancedInterfaceBase tei = (TileEnhancedInterfaceBase) tile;
-                            return updateGui(new ContainerEnhancedInterface(player.inventory, tei, tei.getTier()), world, x, y, z, side, tei);
+                    {
+                        int tier = part != null ? getTier(part) : getTier(tile);
+                        if (tier >= 0) {
+                            IInterfaceHost host = part != null ? (IInterfaceHost) part : (IInterfaceHost) tile;
+                            return updateGui(new ContainerEnhancedInterface(player.inventory, host, tier), world, x, y, z, side, host);
                         }
+                    }
+                    break;
                     case GUI_ENHANCED_INTERFACE_TIER_3_ID:
-                        if (tile instanceof TileEnhancedInterfaceBase) {
-                            TileEnhancedInterfaceBase tei = (TileEnhancedInterfaceBase) tile;
-                            ContainerEnhancedInterface cei = new ContainerEnhancedInterface(player.inventory, tei, tei.getTier()) {
+                    {
+                        int tier = part != null ? getTier(part) : getTier(tile);
+                        if (tier >= 0) {
+                            IInterfaceHost host = part != null ? (IInterfaceHost) part : (IInterfaceHost) tile;
+                            ContainerEnhancedInterface cei = new ContainerEnhancedInterface(player.inventory, host, tier) {
                                 @Override
                                 protected int getHeight() {
                                     return 217;
                                 }
                             };
-                            return updateGui(cei, world, x, y, z, side, tei);
+                            return updateGui(cei, world, x, y, z, side, host);
                         }
-                        break;
+                    }
+                    break;
                     case GUI_PRIORITY_ID:
                         if (tile instanceof TileEnhancedInterfaceBase) {
                             return updateGui(new ContainerPriority(player.inventory, (TileEnhancedInterfaceBase) tile), world, x, y, z, side, tile);
+                        } else if (part instanceof PartEnhancedInterfaceBase) {
+                            return updateGui(new ContainerPriority(player.inventory, (PartEnhancedInterfaceBase) part), world, x, y, z, side, part);
                         }
                     default:
                         break;
@@ -70,19 +84,25 @@ public class Ae2uGuiHandler implements IGuiHandler {
         final AEPartLocation side = AEPartLocation.fromOrdinal(ordinal & 7);
         if (side != AEPartLocation.INTERNAL) {
             TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
+            IPart part = getPart(tile, side);
             if (tile != null) {
                 switch (guiId) {
                     case GUI_ENHANCED_INTERFACE_TIER_1_ID:
                     case GUI_ENHANCED_INTERFACE_TIER_2_ID:
                     case GUI_ENHANCED_INTERFACE_TIER_3_ID:
-                        if (tile instanceof TileEnhancedInterfaceBase) {
-                            TileEnhancedInterfaceBase tei = (TileEnhancedInterfaceBase) tile;
-                            return new GuiEnhancedInterface(player.inventory, tei, tei.getTier());
+                    {
+                        int tier = part != null ? getTier(part) : getTier(tile);
+                        if (tier >= 0) {
+                            IInterfaceHost host = part != null ? (IInterfaceHost) part : (IInterfaceHost) tile;
+                            return new GuiEnhancedInterface(player.inventory, host, tier);
                         }
-                        break;
+                    }
+                    break;
                     case GUI_PRIORITY_ID:
                         if (tile instanceof TileEnhancedInterfaceBase) {
                             return new GuiAe2uPriority(player.inventory, (TileEnhancedInterfaceBase) tile);
+                        } else if (part instanceof PartEnhancedInterfaceBase) {
+                            return new GuiAe2uPriority(player.inventory, (PartEnhancedInterfaceBase) part);
                         }
                     default:
                         break;
@@ -105,6 +125,23 @@ public class Ae2uGuiHandler implements IGuiHandler {
         return newContainer;
     }
 
+    private IPart getPart(TileEntity tile, AEPartLocation side) {
+        if (tile instanceof IPartHost) {
+            IPartHost host = (IPartHost) tile;
+            return host.getPart(side);
+        }
+        return null;
+    }
+
+    private int getTier(Object tile) {
+        if (tile instanceof TileEnhancedInterfaceBase) {
+            return ((TileEnhancedInterfaceBase) tile).getTier();
+        }
+        if (tile instanceof PartEnhancedInterfaceBase) {
+            return ((PartEnhancedInterfaceBase) tile).getTier();
+        }
+        return -1;
+    }
 
     public static void openGui(EntityPlayer player, int ID, TileEntity tile, AEPartLocation side) {
         int x = (int) player.posX;

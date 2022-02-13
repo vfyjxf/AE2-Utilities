@@ -1,0 +1,33 @@
+{
+  "type": "forge:ore_shaped",
+  "result": {
+    "item": "ae2utilities:enhanced_interface_tier1",
+    "count": 1
+  },
+  "pattern": [
+    "ifi",
+    "asc",
+    "ifi"
+  ],
+  "key": {
+    "i": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
+    },
+    "f": {
+      "item": "appliedenergistics2:interface"
+    },
+    "a": {
+      "item": "appliedenergistics2:material",
+      "data": 44
+    },
+    "s": {
+      "item": "appliedenergistics2:material",
+      "data": 35
+    },
+    "c": {
+      "item": "appliedenergistics2:material",
+      "data": 43
+    }
+  }
+}

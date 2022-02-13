@@ -7,9 +7,13 @@ import appeng.core.features.BlockStackSrc;
 import appeng.tile.AEBaseTile;
 import com.github.vfyjxf.ae2utilities.AE2Utilities;
 import com.github.vfyjxf.ae2utilities.block.BlockEnhancedInterface;
+import com.github.vfyjxf.ae2utilities.item.ItemPartEnhancedInterfaceTier1;
+import com.github.vfyjxf.ae2utilities.item.ItemPartEnhancedInterfaceTier2;
+import com.github.vfyjxf.ae2utilities.item.ItemPartEnhancedInterfaceTier3;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier1;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier2;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier3;
+import com.github.vfyjxf.ae2utilities.utils.NameConstants;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -52,9 +56,9 @@ public class RegistryHandler {
     public void initBlocks() {
         for (int i = 1; i <= BlockEnhancedInterface.MAX_TIER; i++) {
             Block block = new BlockEnhancedInterface(i);
-            String registryName = AE2Utilities.MODID + ":" + BlockEnhancedInterface.BASE_BLOCK_NAME + i;
+            String registryName = AE2Utilities.MODID + ":" + NameConstants.BASE_BLOCK_NAME + i;
             block.setRegistryName(registryName);
-            block.setTranslationKey(AE2Utilities.MODID + "." + BlockEnhancedInterface.BASE_BLOCK_NAME + i);
+            block.setTranslationKey(AE2Utilities.MODID + "." + NameConstants.BASE_BLOCK_NAME + i);
             blocks.add(block);
             Item item = new AEBaseItemBlock(block).setRegistryName(registryName);
             items.add(item);
@@ -62,7 +66,15 @@ public class RegistryHandler {
     }
 
     public void initItems() {
+        items.add(initItem(new ItemPartEnhancedInterfaceTier1(), NameConstants.BASE_ITEM_PART_INTERFACE_NAME + 1));
+        items.add(initItem(new ItemPartEnhancedInterfaceTier2(), NameConstants.BASE_ITEM_PART_INTERFACE_NAME + 2));
+        items.add(initItem(new ItemPartEnhancedInterfaceTier3(), NameConstants.BASE_ITEM_PART_INTERFACE_NAME + 3));
+    }
 
+    private Item initItem(Item item, String registryName) {
+        item.setRegistryName(AE2Utilities.MODID + ":" + registryName);
+        item.setTranslationKey(AE2Utilities.MODID + "." + registryName);
+        return item;
     }
 
     public void onInit() {

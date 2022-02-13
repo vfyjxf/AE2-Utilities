@@ -23,12 +23,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockEnhancedInterface extends AEBaseTileBlock {
 
     public static final int MAX_TIER = 3;
-    public static final String BASE_BLOCK_NAME = "enhanced_interface_tier";
     private static final PropertyBool OMNIDIRECTIONAL = PropertyBool.create("omnidirectional");
     private static final PropertyDirection FACING = PropertyDirection.create("facing");
     private final int tier;
@@ -57,8 +57,9 @@ public class BlockEnhancedInterface extends AEBaseTileBlock {
         return new BlockStateContainer(this, OMNIDIRECTIONAL, FACING);
     }
 
+    @Nonnull
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public IBlockState getActualState(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos) {
         TileEnhancedInterfaceBase te = this.getTileEntity(world, pos);
         return te == null ? state
                 : state.withProperty(OMNIDIRECTIONAL, te.isOmniDirectional()).withProperty(FACING, te.getForward());
@@ -85,7 +86,7 @@ public class BlockEnhancedInterface extends AEBaseTileBlock {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(World world, IBlockState state) {
+    public TileEntity createTileEntity(@Nonnull World world, @Nonnull IBlockState state) {
         switch (this.tier) {
             case 2:
                 return new TileEnhancedInterfaceTier2();

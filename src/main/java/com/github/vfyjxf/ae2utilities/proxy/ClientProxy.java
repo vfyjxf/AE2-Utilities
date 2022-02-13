@@ -1,6 +1,9 @@
 package com.github.vfyjxf.ae2utilities.proxy;
 
-import net.minecraft.block.Block;
+import appeng.api.AEApi;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier1;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier2;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier3;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -19,7 +22,9 @@ public class ClientProxy extends CommonProxy {
         for (Item item : RegistryHandler.INSTANCE.getItems()) {
             ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
         }
-
+        AEApi.instance().registries().partModels().registerModels(PartEnhancedInterfaceTier1.MODELS);
+        AEApi.instance().registries().partModels().registerModels(PartEnhancedInterfaceTier2.MODELS);
+        AEApi.instance().registries().partModels().registerModels(PartEnhancedInterfaceTier3.MODELS);
     }
 
 }

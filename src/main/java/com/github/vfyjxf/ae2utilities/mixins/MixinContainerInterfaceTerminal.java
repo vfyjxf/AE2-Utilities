@@ -23,6 +23,9 @@ import appeng.util.inv.WrapperCursorItemHandler;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.WrapperRangeItemHandler;
 import appeng.util.inv.filter.IAEItemFilter;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier1;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier2;
+import com.github.vfyjxf.ae2utilities.parts.PartEnhancedInterfaceTier3;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier1;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier2;
 import com.github.vfyjxf.ae2utilities.tile.TileEnhancedInterfaceTier3;
@@ -343,7 +346,7 @@ public abstract class MixinContainerInterfaceTerminal extends AEBaseContainer {
         if (tag.isEmpty()) {
             tag.setLong("sortBy", inv.getSortBy());
             tag.setString("un", inv.getUnlocalizedName());
-            tag.setInteger("tier",inv.getTier());
+            tag.setInteger("tier", inv.getTier());
         }
 
         for (int x = 0; x < length; x++) {
@@ -373,6 +376,15 @@ public abstract class MixinContainerInterfaceTerminal extends AEBaseContainer {
             set.add(gn);
         }
         for (final IGridNode gn : grid.getMachines(TileEnhancedInterfaceTier3.class)) {
+            set.add(gn);
+        }
+        for (final IGridNode gn : grid.getMachines(PartEnhancedInterfaceTier1.class)) {
+            set.add(gn);
+        }
+        for (final IGridNode gn : grid.getMachines(PartEnhancedInterfaceTier2.class)) {
+            set.add(gn);
+        }
+        for (final IGridNode gn : grid.getMachines(PartEnhancedInterfaceTier3.class)) {
             set.add(gn);
         }
         return set;

@@ -63,6 +63,7 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
     /**
      * @author vfyjxf
      * @reason Compatible with Enhanced Interface
+     * TODO:Rewrite drawFG to make scrolling more logical
      */
     @Override
     @Overwrite

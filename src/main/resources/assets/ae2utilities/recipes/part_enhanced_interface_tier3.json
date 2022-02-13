@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ae2utilities:enhanced_interface_tier3"
+    }
+  ],
+  "result": {
+    "item": "ae2utilities:part_enhanced_interface_tier3"
+  }
+}
