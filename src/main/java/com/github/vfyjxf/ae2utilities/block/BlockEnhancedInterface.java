@@ -48,7 +48,7 @@ public class BlockEnhancedInterface extends AEBaseTileBlock {
 
 
     @Override
-    protected IProperty[] getAEStates() {
+    protected IProperty<?>[] getAEStates() {
         return new IProperty[]{OMNIDIRECTIONAL};
     }
 

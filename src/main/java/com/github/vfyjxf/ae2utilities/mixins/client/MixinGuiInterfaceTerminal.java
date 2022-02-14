@@ -2,13 +2,11 @@ package com.github.vfyjxf.ae2utilities.mixins.client;
 
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.implementations.GuiInterfaceTerminal;
-import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.client.me.ClientDCInternalInv;
 import appeng.client.me.SlotDisconnected;
 import appeng.core.localization.GuiText;
 import com.google.common.collect.HashMultimap;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,12 +15,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Mixin(value = GuiInterfaceTerminal.class, remap = false)
 public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
@@ -47,14 +43,17 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
 
     @Shadow
     @Final
-    private ArrayList<Object> lines;
-
-    @Shadow
-    @Final
     private HashMultimap<String, ClientDCInternalInv> byName;
 
     @Shadow
     private MEGuiTextField searchField;
+
+    @Shadow
+    @Final
+    private ArrayList<String> names;
+
+    private final Map<Integer, Object> byLine = new HashMap<>();
+    private final Map<Integer, Integer> invLines = new HashMap<>();
 
     private MixinGuiInterfaceTerminal(Container container) {
         super(container);
@@ -63,7 +62,6 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
     /**
      * @author vfyjxf
      * @reason Compatible with Enhanced Interface
-     * TODO:Rewrite drawFG to make scrolling more logical
      */
     @Override
     @Overwrite
@@ -78,19 +76,18 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
 
         int offset = 17;
         int linesDraw = 0;
-        for (int x = 0; x < LINES_ON_PAGE && linesDraw < LINES_ON_PAGE && ex + x < lines.size(); x++) {
-            final Object lineObj = this.lines.get(ex + x);
+        for (int x = 0; x < LINES_ON_PAGE && linesDraw < LINES_ON_PAGE && ex + x < byLine.size(); x++) {
+            final Object lineObj = this.byLine.get(ex + x);
             if (lineObj instanceof ClientDCInternalInv) {
-                final ClientDCInternalInv inv = (ClientDCInternalInv) lineObj;
-                int slotPerLines = 9;
-                int linesPerInterface = inv.getInventory().getSlots() / slotPerLines;
-                for (int y = 0; y < linesPerInterface && linesDraw < LINES_ON_PAGE; y++) {
-                    for (int i = 0; i < slotPerLines; i++) {
-                        this.inventorySlots.inventorySlots.add(new SlotDisconnected(inv, i + (y * 9), (i * 18 + 8), 1 + offset));
-                    }
-                    linesDraw++;
-                    offset += 18;
+
+                ClientDCInternalInv inv = (ClientDCInternalInv) lineObj;
+                int currentInvLine = invLines.get(ex + x);
+                for (int i = 0; i < 9; i++) {
+                    this.inventorySlots.inventorySlots.add(new SlotDisconnected(inv, i + (currentInvLine * 9), (i * 18 + 8), 1 + offset));
                 }
+                linesDraw++;
+                offset += 18;
+
             } else if (lineObj instanceof String) {
                 String name = (String) lineObj;
                 final int rows = this.byName.get(name).size();
@@ -107,6 +104,7 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
                 offset += 18;
             }
         }
+
     }
 
     /**
@@ -122,23 +120,14 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
         int offset = 17;
         final int ex = this.getScrollBar().getCurrentScroll();
         int linesDraw = 0;
-        for (int x = 0; x < LINES_ON_PAGE && linesDraw < LINES_ON_PAGE && ex + x < lines.size(); x++) {
-            final Object lineObj = this.lines.get(ex + x);
+        for (int x = 0; x < LINES_ON_PAGE && linesDraw < LINES_ON_PAGE && ex + x < byLine.size(); x++) {
+            final Object lineObj = this.byLine.get(ex + x);
             if (lineObj instanceof ClientDCInternalInv) {
-                final ClientDCInternalInv inv = (ClientDCInternalInv) lineObj;
-
-                GlStateManager.color(1, 1, 1, 1);
-                int linesPerInterface = inv.getInventory().getSlots() / 9;
                 final int width = 9 * 18;
-                for (int y = 0; y < linesPerInterface && linesDraw < LINES_ON_PAGE; y++) {
-                    this.drawTexturedModalRect(offsetX + 7, offsetY + offset, 7, 139, width, 18);
-                    offset += 18;
-                    linesDraw++;
-                }
-            } else {
-                offset += 18;
-                linesDraw++;
+                this.drawTexturedModalRect(offsetX + 7, offsetY + offset, 7, 139, width, 18);
             }
+            offset += 18;
+            linesDraw++;
         }
 
         if (this.searchField != null) {
@@ -184,12 +173,25 @@ public abstract class MixinGuiInterfaceTerminal extends AEBaseGui {
         }
     }
 
-    /**
-     * @reason Compatible with Enhanced Interface
-     */
-    @Redirect(method = "refreshList", at = @At(value = "INVOKE", target = "Lappeng/client/gui/widgets/GuiScrollbar;setRange(III)V", remap = false), remap = false)
-    private void redirectSetRange(GuiScrollbar instance, int min, int max, int pageSize) {
-        instance.setRange(0, lines.size() - 2, 1);
+    @Inject(method = "refreshList", at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;iterator()Ljava/util/Iterator;", ordinal = 0), remap = false, cancellable = true)
+    private void injectRefreshList(CallbackInfo ci) {
+        byLine.clear();
+        invLines.clear();
+        int line = 0;
+        for (String n : this.names) {
+            byLine.put(line++, n);
+            final ArrayList<ClientDCInternalInv> clientInventories = new ArrayList<>(this.byName.get(n));
+            Collections.sort(clientInventories);
+            for (ClientDCInternalInv inv : clientInventories) {
+                for (int i = 0; i < (inv.getInventory().getSlots() / 9); i++) {
+                    byLine.put(line, inv);
+                    invLines.put(line, i);
+                    line++;
+                }
+            }
+        }
+        this.getScrollBar().setRange(0, byLine.size() - LINES_ON_PAGE, 2);
+        ci.cancel();
     }
 
     private ClientDCInternalInv getById(final int tier, final long id, final long sortBy, final String string) {
